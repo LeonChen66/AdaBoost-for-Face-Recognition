@@ -124,10 +124,5 @@ def plot_confusion_matrix(correct_faces, incorrect_faces, correct_non_faces, inc
                   columns = ["Face", "Non-face"])
     
     plt.figure(figsize = (10,7))
-    return sn.heatmap(df_cm, annot=True)
+    return sn.heatmap(df_cm, annot=True, fmt='d', cmap="YlGnBu")
     
-
-if __name__ == "__main__":
-    cf = plot_confusion_matrix(10, 15, 20, 25)
-    cf.figure.savefig("output.png")
-

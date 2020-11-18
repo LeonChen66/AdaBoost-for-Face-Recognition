@@ -44,27 +44,32 @@ if __name__ == "__main__":
         correct_faces = sum(ensemble_vote_all(faces_ii_testing, classifiers))
         incorrect_faces = len(faces_testing) - correct_faces
         correct_non_faces = len(non_faces_testing) - sum(ensemble_vote_all(non_faces_ii_testing, classifiers))
-        incorrect_non_faces = len(non_faces_testing) - correct_faces
+        incorrect_non_faces = len(non_faces_testing) - correct_non_faces
         
         correct_faces_score = ensemble_score_all(faces_ii_testing, classifiers)
         incorrect_non_faces_score = ensemble_score_all(non_faces_ii_testing, classifiers)
         face_label = np.array([1] * len(correct_faces_score) + [-1] * len(incorrect_non_faces_score))
         face_predict = np.array(ensemble_vote_all(faces_ii_testing, classifiers) + ensemble_vote_all(non_faces_ii_testing, classifiers))
         
+        # plot confusion matrix
+        cf = plot_confusion_matrix(correct_faces, incorrect_faces, correct_non_faces, incorrect_non_faces)
+        cf.figure.savefig("results/cf_round_{}.png".format(num))
         # plot roc curve
         # Visualisation with plot_metric
         bc = BinaryClassification(face_label, face_predict, labels=["Class 1", "Class 2"])
 
         # Figures
         plt.figure(figsize=(5,5))
-        bc.plot_roc_curve()
-        plt.show()
+        fpr, tpr, thres, auc = bc.plot_roc_curve()
+        plt.savefig('results/round_{}_roc.jpg'.format(num))
         print('..done.\n\nResult:\n      Faces: ' + str(correct_faces) + '/' + str(len(faces_testing))
             + '  (' + str((float(correct_faces) / len(faces_testing)) * 100) + '%)\n  non-Faces: '
             + str(correct_non_faces) + '/' + str(len(non_faces_testing)) + '  ('
             + str((float(correct_non_faces) / len(non_faces_testing)) * 100) + '%)')
+        
+        print('False Positive Rate: {}, True Positive Rate: {}'.format(fpr, tpr))
 
         haar_imgs = vis_haar(classifiers, faces_testing[0])
 
-        # for i, img in enumerate(haar_imgs):
-        #     cv2.imwrite( '%s.png' %i, img)
+        for i, img in enumerate(haar_imgs):
+            cv2.imwrite( 'results/top_features/%s_round.png' %i, img)
