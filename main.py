@@ -68,7 +68,7 @@ if __name__ == "__main__":
             + str((float(correct_non_faces) / len(non_faces_testing)) * 100) + '%)')
         
         print('False Positive Rate: {}, True Positive Rate: {}'.format(fpr, tpr))
-
+        print('Classifier Results: ', classifiers)
         haar_imgs = vis_haar(classifiers, faces_testing[0])
 
         for i, img in enumerate(haar_imgs):
