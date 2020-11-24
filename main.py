@@ -1,7 +1,7 @@
 from face_rec.adaboost import AdaBoost
 from face_rec.utils import *
-import scikitplot as skplt
 from plot_metric.functions import BinaryClassification
+from sklearn.metrics import f1_score
 
 if __name__ == "__main__":
     pos_training_path = 'data/trainset/faces'
@@ -11,7 +11,7 @@ if __name__ == "__main__":
 
     
     # For performance reasons restricting feature size
-    min_feature_height = 8
+    min_feature_height =8
     max_feature_height = 10
     min_feature_width = 8
     max_feature_width = 10
@@ -32,7 +32,7 @@ if __name__ == "__main__":
     non_faces_ii_testing = list(map(to_integral_image, non_faces_testing))
     print('..done. ' + str(len(non_faces_testing)) + ' non faces loaded.\n')
 
-    for num in ([1, 3, 5, 10]):
+    for num in ([1, 3, 5, 10, 20]):
         num_classifiers = num
         # classifiers are haar like features
         ab = AdaBoost()
@@ -48,7 +48,7 @@ if __name__ == "__main__":
         
         correct_faces_score = ensemble_score_all(faces_ii_testing, classifiers)
         incorrect_non_faces_score = ensemble_score_all(non_faces_ii_testing, classifiers)
-        face_label = np.array([1] * len(correct_faces_score) + [-1] * len(incorrect_non_faces_score))
+        face_label = np.array([1] * len(correct_faces_score) + [0] * len(incorrect_non_faces_score))
         face_predict = np.array(ensemble_vote_all(faces_ii_testing, classifiers) + ensemble_vote_all(non_faces_ii_testing, classifiers))
         
         # plot confusion matrix
@@ -57,7 +57,8 @@ if __name__ == "__main__":
         # plot roc curve
         # Visualisation with plot_metric
         bc = BinaryClassification(face_label, face_predict, labels=["Class 1", "Class 2"])
-
+        f1 = f1_score(face_label, face_predict)
+        print("f1: ", f1)
         # Figures
         plt.figure(figsize=(5,5))
         fpr, tpr, thres, auc = bc.plot_roc_curve()
@@ -68,7 +69,8 @@ if __name__ == "__main__":
             + str((float(correct_non_faces) / len(non_faces_testing)) * 100) + '%)')
         
         print('False Positive Rate: {}, True Positive Rate: {}'.format(fpr, tpr))
-        print('Classifier Results: ', classifiers)
+        print('Classifier Results: ', ab.stats)
+
         haar_imgs = vis_haar(classifiers, faces_testing[0])
 
         for i, img in enumerate(haar_imgs):

@@ -3,3 +3,4 @@ results/
 *.docx
 .vscode/
 .DS_Store
+.zip
